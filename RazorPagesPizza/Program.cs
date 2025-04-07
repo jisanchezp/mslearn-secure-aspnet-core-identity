@@ -14,9 +14,16 @@ builder.Services.AddDefaultIdentity<RazorPagesPizzaUser>(options => options.Sign
     .AddEntityFrameworkStores<RazorPagesPizzaAuth>();
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+options.Conventions.AuthorizePage("/AdminsOnly", "Admin"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddSingleton(new QRCodeService(new QRCodeGenerator()));
+builder.Services.AddAuthorization(options => 
+{
+    options.AddPolicy("Admin", policy =>
+        policy.RequireAuthenticatedUser()
+            .RequireClaim("IsAdmin", bool.TrueString));
+});
 
 var app = builder.Build();
 
